@@ -162,6 +162,12 @@ public class Main {
 
 		this.nopolContext = new NopolContext(sourceFiles, classpath, jsapConfig.getStringArray("test"));
 
+		// set test path
+		nopolContext.setTestPath(jsapConfig.getString("testPath"));
+		nopolContext.setSrcPath(jsapConfig.getString("srcPath"));
+		nopolContext.setGzPath(jsapConfig.getString("gzPath"));
+		nopolContext.setClassPath(jsapConfig.getString("classpath"));
+		
 		nopolContext.setType(strToStatementType(jsapConfig.getString("type")));
 		nopolContext.setMode(strToMode(jsapConfig.getString("mode")));
 		nopolContext.setSynthesis(strToSynthesis(jsapConfig.getString("synthesis")));
@@ -235,6 +241,8 @@ public class Main {
 	private static NopolContext.NopolLocalizer strToLocalizer(String str) {
 		if (str.equals("gzoltar")) {
 			return NopolContext.NopolLocalizer.GZOLTAR;
+		} else if (str.equals("gzoltar-new")) {
+			return NopolContext.NopolLocalizer.GZOLTAR_NEW;
 		} else if (str.equals("dumb")) {
 			return NopolContext.NopolLocalizer.DUMB;
 		} else
@@ -315,6 +323,36 @@ public class Main {
 		sourceOpt.setList(true);
 		sourceOpt.setHelp("Define the path to the source code of the project.");
 		jsap.registerParameter(sourceOpt);
+		
+		FlaggedOption testPathOpt = new FlaggedOption("testPath");
+		testPathOpt.setRequired(true);
+		testPathOpt.setAllowMultipleDeclarations(false);
+		testPathOpt.setLongFlag("testPath");
+//		testPathOpt.setShortFlag();
+		testPathOpt.setStringParser(JSAP.STRING_PARSER);
+		testPathOpt.setList(true);
+		testPathOpt.setHelp("Define the path to the test code of the project.");
+		jsap.registerParameter(testPathOpt);
+		
+		FlaggedOption srcPathOpt = new FlaggedOption("srcPath");
+		srcPathOpt.setRequired(true);
+		srcPathOpt.setAllowMultipleDeclarations(false);
+		srcPathOpt.setLongFlag("srcPath");
+//		srcPathOpt.setShortFlag();
+		srcPathOpt.setStringParser(JSAP.STRING_PARSER);
+		srcPathOpt.setList(true);
+		srcPathOpt.setHelp("Define the path to the source code of the project.");
+		jsap.registerParameter(srcPathOpt);
+		
+		FlaggedOption gzPathOpt = new FlaggedOption("gzPath");
+		gzPathOpt.setRequired(true);
+		gzPathOpt.setAllowMultipleDeclarations(false);
+		gzPathOpt.setLongFlag("gzPath");
+//		gzPathOpt.setShortFlag();
+		gzPathOpt.setStringParser(JSAP.STRING_PARSER);
+		gzPathOpt.setList(true);
+		gzPathOpt.setHelp("Define the path to the source code of the project.");
+		jsap.registerParameter(gzPathOpt);
 
 		FlaggedOption classpathOpt = new FlaggedOption("classpath");
 		classpathOpt.setRequired(true);

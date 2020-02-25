@@ -53,6 +53,7 @@ public class NopolContext implements Serializable {
 	public enum NopolLocalizer {
 		DUMB,
 		GZOLTAR,
+		GZOLTAR_NEW,
 		COCOSPOON
 	}
 
@@ -592,6 +593,7 @@ public class NopolContext implements Serializable {
 
 	// Dynamoth generates at most 10 patches
 	private int maxPatches = 10;
+
 	public int getMaxPatches() {
 		return maxPatches;
 	}
@@ -600,6 +602,42 @@ public class NopolContext implements Serializable {
 			throw new IllegalStateException("for more than one patches, isOnlyOneSynthesisResult() should false");
 		}
 		this.maxPatches = v;
+	}
+	
+	// test path 
+	private String testPath;
+	public void setTestPath(String testPath) {
+		this.testPath = testPath;
+	}
+	public String getTestPath(){
+		return this.testPath;
+	}
+	
+	// src path 
+	private String srcPath;
+	public void setSrcPath(String srcPath) {
+		this.srcPath = srcPath;
+	}
+	public String getSrcPath(){
+		return this.srcPath;
+	}
+	
+	// gzoltar path
+	private String gzPath;
+	public void setGzPath(String gzPath) {
+		this.gzPath = gzPath;
+	}
+	public String getGzPath(){
+		return this.gzPath;
+	}
+	
+	// class path
+	private String classpath;
+	public void setClassPath(String classpath) {
+		this.classpath = classpath;
+	}
+	public String getClassPath(){
+		return this.classpath;
 	}
 
 }

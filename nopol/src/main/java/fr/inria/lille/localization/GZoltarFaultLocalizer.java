@@ -54,7 +54,7 @@ public final class GZoltarFaultLocalizer extends GZoltar implements FaultLocaliz
 
 	private List<StatementExt> statements;
 
-	// encapsulates the try/catcch forced by gzoltar
+	// encapsulates the try/catch forced by gzoltar
 	public static GZoltarFaultLocalizer createInstance(NopolContext nopolContext) {
 		try {
 			return new GZoltarFaultLocalizer(nopolContext);

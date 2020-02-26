@@ -149,6 +149,22 @@
             <artifactId>json</artifactId>
             <version>20160810</version>
         </dependency>
+
+	<!-- GZoltar 1.7.3 
+	<dependency>
+	    <groupId>com.gzoltar</groupId>
+	    <artifactId>com.gzoltar.agent.rt</artifactId>
+	    <version>1.7.3-SNAPSHOT</version>
+	    <scope>system</scope>
+	    <systemPath>${basedir}/lib/GZoltar/com.gzoltar.agent.rt-1.7.3-SNAPSHOT-all.jar</systemPath>
+	</dependency>
+	<dependency>
+	    <groupId>com.gzoltar</groupId>
+	    <artifactId>com.gzoltar.cli</artifactId>
+	    <version>1.7.3-SNAPSHOT</version>
+	    <scope>system</scope>
+	    <systemPath>${basedir}/lib/GZoltar/com.gzoltar.cli-1.7.3-SNAPSHOT-jar-with-dependencies.jar</systemPath>
+	</dependency>  -->
     </dependencies>
 
     <dependencyManagement>

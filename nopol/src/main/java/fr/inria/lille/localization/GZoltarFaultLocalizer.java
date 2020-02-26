@@ -207,7 +207,7 @@ public final class GZoltarFaultLocalizer extends GZoltar implements FaultLocaliz
 				}
 				nextTest = coverage.nextSetBit(nextTest + 1);
 			}
-			StatementExt s = new StatementExt(metric, statement);
+			StatementExt s = new StatementExt(metric, statement);//SourceLocation org.jfree.chart.plot.PiePlot:1074
 			s.setEf(executedAndFailedCount);
 			s.setEp(executedAndPassedCount);
 			s.setNp(successfulTests - executedAndPassedCount);

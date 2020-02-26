@@ -60,9 +60,18 @@ public final class GZoltarFaultLocalizerNew implements FaultLocalizer{
 	private List<StatementExt> statements;
 	
 	private static final Logger logger = LoggerFactory.getLogger(GZoltarFaultLocalizerNew.class);
-
+	private String gzBuildPath;
+	private int totalPassedTests = 0;
+	private int totalFailedTests = 0;
+	private List<SourceLocation> slList;
+	private NopolContext nopolContext; // not necessary, mainly for debugging use.
+	private Map<SourceLocation, List<fr.inria.lille.localization.TestResult>> results;
+	private List<String> testsList;
+	
 	public GZoltarFaultLocalizerNew(NopolContext nopolContext) {
+		this.nopolContext = nopolContext;
 		runGZoltar(nopolContext);
+		setTestListPerStatement();
 	}
 	
 	private void runGZoltar(NopolContext nopolContext){
@@ -86,7 +95,7 @@ public final class GZoltarFaultLocalizerNew implements FaultLocalizer{
 //		}
 		//String buildDir = srcDir.substring(0, srcDir.lastIndexOf('/') + 1);
 		//String gzBuildPath = buildDir + "gzBuild";
-		String gzBuildPath = srcDir + "/../gzBuild";
+		this.gzBuildPath = srcDir + "/../gzBuild";
 		File gzBuildDir = new File(gzBuildPath);
 //		try {
 //			FileUtils.copyDirectory(new File(srcDir), gzBuildDir);
@@ -120,7 +129,21 @@ public final class GZoltarFaultLocalizerNew implements FaultLocalizer{
 		Util.runCmd(cmdMethod);
 		
 		String serFilePath = gzBuildPath + "/gzoltar.ser";
-		String testsStr = Util.runCmd(String.format("cat %s | cut -d ',' -f 2 | cut -d '#' -f 1 | tr '\n' ':'", unitTestFilePath)).trim();
+		String testsStr = Util.runCmd(String.format("cat %s | cut -d ',' -f 2 | cut -d '#' -f 1 | uniq | tr '\n' ':'", unitTestFilePath)).trim();
+		
+		// another way to get testsStr
+//		this.testsList = Util.readTestFile(new File(nopolContext.getSrcPath()).getAbsolutePath() + "/../gzBuild/tests.txt");
+//		List<String> testClassesList = new ArrayList<>();
+//		String testsStr = "";
+//		for (String testCase : testsList){
+//			String testClass = testCase.split("#")[0];
+//			if (! testClassesList.contains(testClass)){
+//				testClassesList.add(testClass);
+//			}
+//		}
+		
+		
+//		Util.writeToFile(gzBuildPath + "/testStr.txt", testsStr, false);
 //		String testsStr = Util.runCmd(String.format("head %s -n 1 | cut -d ',' -f 2 | cut -d '#' -f 1 | tr '\n' ':'", unitTestFilePath)).trim();
 //		String testsStr = Util.runCmd(String.format("echo $(cat %s | cut -d ',' -f 2 | cut -d '#' -f 1 | tr '\n' ':')", unitTestFilePath));
 		String cmdCoverage = String.format("java -javaagent:%s=destfile=%s,buildlocation=%s,excludes=%s,inclnolocationclasses=false,output=\"file\" %s %s",
@@ -150,15 +173,93 @@ public final class GZoltarFaultLocalizerNew implements FaultLocalizer{
 
 	@Override
 	public Map<SourceLocation, List<fr.inria.lille.localization.TestResult>> getTestListPerStatement() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.results;
+	}	
+	
+	public void setTestListPerStatement() {	
+		if (this.gzBuildPath == null){
+			this.gzBuildPath = new File(nopolContext.getSrcPath()).getAbsolutePath() + "/../gzBuild";
+		}
+		
+		Map<SourceLocation, List<fr.inria.lille.localization.TestResult>> results = new HashMap<>();
+		this.slList = Util.readStmtFile(this.gzBuildPath + "/sfl/txt/spectra.faulty.csv");
+		if (this.testsList == null){ // for debugging use
+			this.testsList = Util.readTestFile(this.gzBuildPath + "/tests.txt");
+		}
+//		List<String> testsList = Util.readTestFile(this.gzBuildPath + "/tests.txt");
+		List<Pair<List<Integer>, String>> matrixList = Util.readMatrixFile(this.gzBuildPath + "/sfl/txt/filtered_matrix.txt");
+		this.totalPassedTests = Util.totalPassedTests;
+		this.totalFailedTests = Util.totalFailedTests;
+		
+		List<StatementSourceLocation> sslList = new ArrayList<>();
+		//for (SourceLocation sl : slList){
+		for (int i = 0; i < slList.size(); i++){
+			SourceLocation sl = slList.get(i);
+			int executedPassedCount = 0;
+			int executedFailedCount = 0;
+			for (Pair<List<Integer>, String> pair : matrixList){
+				if (pair.getLeft().contains(i)){
+					if (pair.getRight().equals("+")){
+						executedPassedCount += 1;
+					}else{
+						executedFailedCount += 1;
+					}
+				}
+			}
+			
+			StatementSourceLocation ssl = new StatementSourceLocation(new Ochiai(), sl);
+			ssl.setEf(executedFailedCount);
+			ssl.setEp(executedPassedCount);
+			ssl.setNf(this.totalFailedTests - executedFailedCount);
+			ssl.setNp(this.totalPassedTests - executedPassedCount);
+			sslList.add(ssl);
+		}
+		Collections.sort(sslList, new Comparator<StatementSourceLocation>(){
+			@Override
+			public int compare(final StatementSourceLocation o1, final StatementSourceLocation o2){
+				return Double.compare(o2.getSuspiciousness(), o1.getSuspiciousness());
+			}
+		});
+		
+		// write to file.
+		String writePath = this.gzBuildPath + "/sfl/txt/ochiai.nopol.csv";
+		Util.writeToFile(writePath, "", false);
+		for (StatementSourceLocation ssl : sslList){
+			String line = ssl.getLocation().getContainingClassName() + ":" + ssl.getLocation().getLineNumber() + ";" + ssl.getSuspiciousness() + "\n";
+			Util.writeToFile(writePath, line);
+		}
+		
+		
+		for (int i = 0; i < matrixList.size(); i++){
+			boolean testResult;
+			if(matrixList.get(i).getRight().equals("+")){
+				testResult = true;
+			}else{
+				testResult = false;
+			}
+			List<Integer> coveredStmtIndexList = matrixList.get(i).getLeft();
+			
+			TestResultImpl test = new TestResultImpl(TestCase.from(this.testsList.get(i)), testResult);
+			
+			for(int index : coveredStmtIndexList){
+				SourceLocation sl = slList.get(index);
+				
+				if (!results.containsKey(sl)) {
+					results.put(sl, new ArrayList<fr.inria.lille.localization.TestResult>());
+				}
+				results.get(sl).add(test);
+			}
+		}
+		
+		LinkedHashMap<SourceLocation, List<fr.inria.lille.localization.TestResult>> map = new LinkedHashMap<>();
+		for (StatementSourceLocation ssl : sslList){
+			map.put(ssl.getLocation(), results.get(ssl.getLocation()));
+		}
+		this.results = map;
 	}
 
 	@Override
 	public List<? extends StatementSourceLocation> getStatements() {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
-	
 }

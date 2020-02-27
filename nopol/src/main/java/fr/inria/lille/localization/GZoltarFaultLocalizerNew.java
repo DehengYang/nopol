@@ -110,8 +110,9 @@ public final class GZoltarFaultLocalizerNew implements FaultLocalizer{
 		}
 //		String cmdCp1 = String.format("cp -rn %s/* %s", srcDir, gzBuildPath);
 		String cmdCp2 = String.format("find %s -name \"*.java\" -type f -delete", gzBuildPath);
-		String result = Util.runCmd(cmdCp1);
-		result = Util.runCmd(cmdCp2);
+//		String result = Util.runCmd(cmdCp1);
+//		result = Util.runCmd(cmdCp2);
+		
 				
 		// compile
 		String cmdCompile1 = String.format("find %s -type f -name '*.java' -print | xargs javac -cp %s -d %s",
@@ -119,14 +120,14 @@ public final class GZoltarFaultLocalizerNew implements FaultLocalizer{
 		String cmdCompile2 = String.format("find %s -type f -name '*.java' -print | xargs javac -cp %s:%s:%s -d %s",
 				nopolContext.getTestPath(), gzBuildPath, nopolContext.getClassPath(), junitPath, gzBuildPath);
 		String cmdCompile = String.format("%s; %s", cmdCompile1, cmdCompile2);
-		result = Util.runCmd(cmdCompile1);
-		result = Util.runCmd(cmdCompile2);
+//		result = Util.runCmd(cmdCompile1);
+//		result = Util.runCmd(cmdCompile2);
 		
 		// list test methods
 		String unitTestFilePath = gzBuildPath + "/tests.txt";
 		String cmdMethod = String.format("java -cp %s:%s:%s:%s:%s com.gzoltar.cli.Main listTestMethods %s --outputFile %s",
 				gzBuildPath, junitPath, hamcrestPath, gzCliPath, nopolContext.getClassPath(), gzBuildPath, unitTestFilePath);
-		Util.runCmd(cmdMethod);
+//		Util.runCmd(cmdMethod);
 		
 		String serFilePath = gzBuildPath + "/gzoltar.ser";
 		String testsStr = Util.runCmd(String.format("cat %s | cut -d ',' -f 2 | cut -d '#' -f 1 | uniq | tr '\n' ':'", unitTestFilePath)).trim();
@@ -155,18 +156,26 @@ public final class GZoltarFaultLocalizerNew implements FaultLocalizer{
 			);  // I made a big mistake here: I ommit an "s" in "runTestMethods". To find this bug, I spent about 2 hours on this.
 		// Reason: its not easy, especially the tests (testsStr) are so large/long.
 //		logger.debug(cmdCoverage);
-		Util.runCmd(cmdCoverage);
+//		Util.runCmd(cmdCoverage);
 		
 		// matrix and spectra output
 		String cmdMatrix = String.format("java -cp %s:%s:%s:%s:%s com.gzoltar.cli.Main faultLocalizationReport --outputDirectory %s --buildLocation %s --dataFile %s %s", 
 				gzBuildPath, junitPath, hamcrestPath, gzCliPath, nopolContext.getClassPath(), gzBuildPath, gzBuildPath, serFilePath,
 				" --granularity \"line\" --inclPublicMethods --inclStaticConstructors --inclDeprecatedMethods --family \"sfl\" --formula \"ochiai\" --metric \"entropy\" --formatter \"txt\" "
 				);
-		Util.runCmd(cmdMatrix);
+//		Util.runCmd(cmdMatrix);
 		
 		// matrix simplification
 		String cmdSimplify = String.format("cp %s/matrix_simplify.py %s && cd %s && python3.6 matrix_simplify.py", gzoltarDir, gzBuildPath, gzBuildPath);
-		Util.runCmd(cmdSimplify);
+		
+//		String result = Util.runCmd(cmdCp1);
+//		result = Util.runCmd(cmdCp2);
+//		result = Util.runCmd(cmdCompile1);
+//		result = Util.runCmd(cmdCompile2);
+//		Util.runCmd(cmdMethod);
+//		Util.runCmd(cmdCoverage);
+//		Util.runCmd(cmdMatrix);
+//		Util.runCmd(cmdSimplify);
 		
 		System.out.println();
 	}

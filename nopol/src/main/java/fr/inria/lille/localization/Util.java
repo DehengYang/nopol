@@ -44,7 +44,7 @@ public class Util {
 				error += line + "\n";
 			}
 			if(!error.equals("")){
-				logger.warn(String.format("Error/Warning occurs when executing %s :\n %s \n", cmd, error));
+				logger.warn(String.format("Error/Warning occurs when executing %s :\n %s \n", cmd, error)); // .substring(0, 300): avoid printing too long cmd string.
 			}
 		}catch (Exception err){
 			err.printStackTrace();

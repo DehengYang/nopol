@@ -93,7 +93,7 @@ def simplify_fl_result(directory = fl_dir):
     start = time.time()
     tests_path = directory + "tests.csv"
     # cannot set as "," that will cause ParserError: Error tokenizing data. C error: Expected 4 fields in line 66, saw 5
-    tests_df = pd.read_csv(tests_path, delimiter = ";") 
+    # tests_df = pd.read_csv(tests_path, delimiter = ",") 
     
     matrix_path = directory + "matrix.txt"
     filtered_matrix_path = directory + "filtered_matrix.txt"
@@ -122,14 +122,14 @@ def simplify_fl_result(directory = fl_dir):
                     #      .format(ind, tests_df.iloc[ind, 0], tests_df.iloc[ind, 1], 
                     #              tests_df.iloc[ind, 3]))
                     
-                    print("Index: {}, failed case info: {}".format(ind, tests_df.iloc[ind, 0]))
-                    log("Index: {}, failed case info: {}".format(ind, tests_df.iloc[ind, 0]))
+                    #print("Index: {}, failed case info: {}".format(ind, tests_df.iloc[ind, 0]))
+                    #log("Index: {}, failed case info: {}".format(ind, tests_df.iloc[ind, 0]))
                     
                 ind += 1 # increment
     end = time.time()
     print("3-1) time cost: {}".format(end - start))            
                 
-    return df_faulty, df_non_faulty, faulty_index_list, tests_df
+    return df_faulty, df_non_faulty, faulty_index_list #, tests_df
 
 # save some info into log.txt
 def log(string, path = log_path):
@@ -142,7 +142,7 @@ def test_empty_file():
 if __name__ == "__main__":
     if os.path.exists(log_path):
         os.remove(log_path)
-    df_faulty, df_non_faulty, faulty_index_list, tests_df = simplify_fl_result()
+    df_faulty, df_non_faulty, faulty_index_list = simplify_fl_result() #, tests_df
     
     
     

@@ -108,6 +108,7 @@ public final class GZoltarFaultLocalizer extends GZoltar implements FaultLocaliz
 	public Map<SourceLocation, List<fr.inria.lille.localization.TestResult>> getTestListPerStatement() {
 		Map<SourceLocation, List<fr.inria.lille.localization.TestResult>> results = new HashMap<>();
 		List<TestResult> testResults = this.getTestResults();
+		System.out.format("testResults size: %d", testResults.size());
 
 		for (int j = 0; j < testResults.size(); j++) {
 			TestResult testResult = testResults.get(j);
@@ -141,6 +142,7 @@ public final class GZoltarFaultLocalizer extends GZoltar implements FaultLocaliz
 	 * @return a ranked list of potential bug root-cause.
 	 */
 	private List<StatementExt> run(final String... testClasses) {
+		System.out.format("testClasses size: %d", testClasses.length);
 		for (String className : checkNotNull(testClasses)) {
 			this.addTestToExecute(className); // we want to execute the test
 			this.addClassNotToInstrument(className); // we don't want to include the test as root-cause
